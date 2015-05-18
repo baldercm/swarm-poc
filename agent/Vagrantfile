@@ -1,0 +1,27 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  config.vm.box = "ubuntu/trusty64"
+
+  config.vm.hostname = "swarm-agent"
+
+  # config.vm.network "forwarded_port", guest: 2375, host: 23750
+
+  config.vm.network "private_network", ip: "192.168.100.101"
+
+  config.vm.provision "shell" do |shell|
+    shell.path = "docker-opts.sh"
+  end
+
+  config.vm.provision "docker", run: "always" do |d|
+    d.run "swarm-agent",
+      image: "swarm",
+      cmd: "join --addr=192.168.100.101:2375 token://6eb3ca8ee7c8dfe29d6988f51d316930"
+  end
+
+end
