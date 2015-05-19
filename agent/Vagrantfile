@@ -12,16 +12,28 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # config.vm.network "forwarded_port", guest: 2375, host: 23750
 
-  config.vm.network "private_network", ip: "192.168.100.101"
-
   config.vm.provision "shell" do |shell|
     shell.path = "docker-opts.sh"
   end
 
-  config.vm.provision "docker", run: "always" do |d|
-    d.run "swarm-agent",
-      image: "swarm",
-      cmd: "join --addr=192.168.100.101:2375 token://6eb3ca8ee7c8dfe29d6988f51d316930"
+  config.vm.define "agent1" do |agent1|
+    agent1.vm.network "private_network", ip: "192.168.100.101"
+
+    agent1.vm.provision "docker", run: "always" do |d|
+      d.run "swarm-agent-1",
+        image: "swarm",
+        cmd: "join --addr=192.168.100.101:2375 token://6eb3ca8ee7c8dfe29d6988f51d316930"
+    end
+  end
+
+  config.vm.define "agent2" do |agent2|
+    agent2.vm.network "private_network", ip: "192.168.100.102"
+
+    agent2.vm.provision "docker", run: "always" do |d|
+      d.run "swarm-agent-2",
+        image: "swarm",
+        cmd: "join --addr=192.168.100.102:2375 token://6eb3ca8ee7c8dfe29d6988f51d316930"
+    end
   end
 
 end
